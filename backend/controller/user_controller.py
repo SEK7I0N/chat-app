@@ -143,8 +143,6 @@ def create_user_role_link(cursor:sqlite3.Cursor, user_id, role_id):
 
 def update_user_details(cursor:sqlite3.Cursor, user_id: int, user_details : UserSchema):
     """Insert user details in database"""
-    print(f'user id {user_id}')
-    print(f'user details {user_details}')
     cursor.execute(
         f"""UPDATE users
         SET

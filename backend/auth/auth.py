@@ -23,11 +23,11 @@ class AuthHandler():
         """Verifies the password"""
         return self.pwd_context.verify(password, hashed_password)
 
-    def encode_token(self, user_id):
+    def encode_token(self, username, exp=timedelta(minutes=30)):
         """Encodes the token"""
         payload = {
-                'user_id': user_id,
-                'exp': datetime.now(timezone.utc) + timedelta(minutes=30),
+                'username': username,
+                'exp': datetime.now(timezone.utc) + exp,
                 'iat': datetime.now(timezone.utc)
             }
 
@@ -37,7 +37,7 @@ class AuthHandler():
         """Decodes the token"""
         try:
             payload = jwt.decode(token, self.secret, algorithms=['HS256'])
-            return payload['user_id']
+            return payload['username']
         except jwt.ExpiredSignatureError as caught_exception:
             raise HTTPException(
                 status_code=401,

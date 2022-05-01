@@ -1,6 +1,7 @@
 """User Controller"""
 import sqlite3
 from datetime import datetime, timezone
+from json import dumps
 
 from db.database import connect_database
 from model.messages import MessageSchema
@@ -23,6 +24,23 @@ def write_message(message_details: MessageSchema):
         cursor.close()
         conn.close()
 
+def get_all_message_for_group(group:str):
+    """Get all messages for group"""
+    conn = connect_database()
+    cursor = conn.cursor()
+    try:
+        group_id = fetch_group_id(cursor=cursor, group_name=group)
+        output = cursor.execute(
+            f"""SELECT login.username as sender,messages.message as message, messages.message_timestamp as sent_at FROM messages
+            INNER JOIN login ON messages.sender_ID = login.user_id
+            WHERE messages.group_id = {group_id}
+            ORDER BY messages.message_timestamp DESC"""
+        )
+        results = output.fetchall()
+        return [{output.description[i][0]: row[i] for i in range(len(row))} for row in results]
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def insert_messages(cursor: sqlite3.Cursor,message_details: MessageSchema):
